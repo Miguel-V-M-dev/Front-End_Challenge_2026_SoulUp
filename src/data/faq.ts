@@ -5,30 +5,30 @@ export const faqEntries: FaqEntry[] = [
         id: "como-converter",
         pergunta: "Como converto pontos?",
         resposta:
-            "Use a página de conversão, informe a quantidade de pontos e confirme a solicitação. Você verá taxas e o valor líquido antes de confirmar.",
+            "Entre na sua conta, abra a página de conversão, informe a quantidade de pontos e a operadora de transporte. Você verá o valor do crédito e a validade do voucher antes de confirmar.",
     },
     {
         id: "quanto-vale",
         pergunta: "Quanto vale 100 pontos?",
         resposta:
-            "Valor configurável, dependendo do momento, normalmente sendo R$ 1,00 por 100 pontos. O valor real pode variar conforme campanhas, parceiros entre outros.",
+            "100 pontos valem R$ 1,00 em crédito de transporte. A conversão mínima é de 100 pontos.",
     },
     {
         id: "tempo-credito",
         pergunta: "Quanto tempo leva para receber o crédito?",
         resposta:
-            "Vouchers: imediato. Integração com bilhetagem: até 24 horas úteis, dependendo do parceiro.",
+            "O voucher é gerado imediatamente após a confirmação e fica válido por 6 meses, para uso na operadora escolhida (SPTrans, Metro SP, EMTU, CPTM ou Outro).",
     },
     {
-        id: "taxa-processamento",
-        pergunta: "Há taxa de processamento?",
+        id: "ganhar-pontos",
+        pergunta: "Como ganho mais pontos?",
         resposta:
-            "Sim, existe uma taxa que é exibida no resumo antes da confirmação, mostrando transparência total: valor bruto, taxa e valor líquido.",
+            "Concluindo missões sustentáveis na página de Missões. Cada missão ativa pode ser concluída uma vez por usuário e soma os pontos de recompensa ao seu saldo.",
     },
     {
         id: "cancelar-solicitacao",
         pergunta: "Posso cancelar uma solicitação?",
         resposta:
-            "Solicitações em processamento podem ser canceladas conforme o status; pedidos já integrados ao sistema de bilhetagem podem exigir contato pela página de Contato.",
+            "Conversões com status pendente podem ser canceladas conforme o caso. Para vouchers já gerados, fale com a gente pela página de Contato.",
     },
 ];
