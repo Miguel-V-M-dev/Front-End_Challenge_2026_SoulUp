@@ -1,43 +1,82 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FiArrowLeft, FiCheckCircle } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import PageHero from "../components/ui/PageHero";
-import { missions } from "../data/missions";
-import { carregarMissoesConcluidas, salvarMissoesConcluidas } from "../utils/storage";
+import { useAuth } from "../context/useAuth";
+import { Carregando, ErroCarregar } from "../components/ui/Estado";
+import { rotuloCategoria } from "../data/categorias";
+import { useApi } from "../hooks/useApi";
+import { buscarMissao, concluirMissao, listarMissoesConcluidas } from "../services/ecoloopService";
 
 export default function MissaoDetalhe() {
     // useParams lê o parâmetro dinâmico definido na rota "/missoes/:id".
     const { id } = useParams<{ id: string }>();
     // useNavigate permite navegação programática (sem depender de um <Link>).
     const navigate = useNavigate();
+    const { usuario, carregando: carregandoSessao, atualizarSaldo } = useAuth();
 
-    const missao = missions.find((item) => item.id === id);
+    // O id da URL é texto; a chave da missão (id_missao) é numérica.
+    const idMissao = Number(id);
+    const { dados, erro: erroCarga, status, carregando, recarregar } = useApi(
+        async () => {
+            const [missao, concluidas] = await Promise.all([
+                buscarMissao(idMissao),
+                usuario ? listarMissoesConcluidas() : Promise.resolve([]),
+            ]);
+            return { missao, concluida: concluidas.some((um) => um.idMissao === idMissao) };
+        },
+        `missao:${id}:${usuario?.idUsuario ?? "anon"}`,
+        !carregandoSessao,
+    );
 
-    const [concluida, setConcluida] = useState(() => carregarMissoesConcluidas().includes(id ?? ""));
+    const missao = dados?.missao;
+    const [erro, setErro] = useState("");
+    const [salvando, setSalvando] = useState(false);
+    const [concluidaAgora, setConcluidaAgora] = useState(false);
+    const concluida = concluidaAgora || Boolean(dados?.concluida);
 
-    // useEffect com array de dependências [id]: dispara sempre que o parâmetro
-    // da rota mudar (por exemplo, ao navegar de uma missão para outra sem sair
-    // desta página) e também na montagem/desmontagem do componente — o mesmo
-    // padrão do exercício do avião visto em aula.
-    useEffect(() => {
-        console.info(`[MissaoDetalhe] aberta a missão "${id}".`);
-        return () => {
-            console.info(`[MissaoDetalhe] fechando a missão "${id}".`);
-        };
-    }, [id]);
-
-    function handleConcluir() {
-        if (!id) return;
-        const atual = carregarMissoesConcluidas();
-        if (!atual.includes(id)) {
-            const atualizado = [...atual, id];
-            salvarMissoesConcluidas(atualizado);
+    async function handleConcluir() {
+        if (!missao) return;
+        if (!usuario) {
+            // Concluir missão grava no banco e soma pontos: exige login.
+            navigate("/login", { state: { from: `/missoes/${missao.idMissao}` } });
+            return;
         }
-        setConcluida(true);
-        // Navegação programática: volta para a listagem após concluir.
-        navigate("/missoes");
+        setErro("");
+        setSalvando(true);
+        try {
+            const resposta = await concluirMissao(missao.idMissao);
+            atualizarSaldo(resposta.saldoPontos); // a API já devolve o saldo novo
+            setConcluidaAgora(true);
+            // Navegação programática: volta para a listagem após concluir.
+            navigate("/missoes");
+        } catch (e) {
+            setErro(e instanceof Error ? e.message : "Não foi possível concluir a missão.");
+        } finally {
+            setSalvando(false);
+        }
+    }
+
+    if (carregando || carregandoSessao) {
+        return (
+            <div>
+                <PageHero titulo="Missão" />
+                <Carregando texto="Carregando missão..." />
+            </div>
+        );
+    }
+
+    if (erroCarga && status !== 404) {
+        return (
+            <div>
+                <PageHero titulo="Missão" />
+                <section className="px-4 py-14">
+                    <ErroCarregar mensagem={erroCarga} onTentarNovamente={recarregar} />
+                </section>
+            </div>
+        );
     }
 
     if (!missao) {
@@ -59,19 +98,17 @@ export default function MissaoDetalhe() {
     return (
         <div>
             <PageHero titulo={missao.titulo}>
-                <p>{missao.resumo}</p>
+                <p>{missao.descricao}</p>
             </PageHero>
 
             <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
                 <Card>
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-700">
-                            {missao.categoria}
+                            {rotuloCategoria[missao.categoria]}
                         </span>
-                        <span className="text-sm font-semibold text-gold-600">+{missao.pontos} pontos</span>
+                        <span className="text-sm font-semibold text-gold-600">+{missao.pontosRecompensa} pontos</span>
                     </div>
-
-                    <p className="mt-5 leading-relaxed text-gray-700">{missao.descricao}</p>
 
                     <h3 className="mt-6 font-bold text-brand-900">Dicas para concluir</h3>
                     <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-600">
@@ -80,16 +117,24 @@ export default function MissaoDetalhe() {
                         ))}
                     </ul>
 
-                    <p className="mt-4 text-sm text-gray-500">Impacto estimado: {missao.impactoCO2}</p>
+                    {erro && (
+                        <p role="alert" className="mt-4 rounded-lg bg-red-50 px-4 py-2 text-sm text-red-700">
+                            {erro}
+                        </p>
+                    )}
 
                     <div className="mt-6 flex flex-wrap gap-3">
                         {concluida ? (
                             <span className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-5 py-3 text-sm font-semibold text-brand-700">
                                 <FiCheckCircle /> Missão já concluída
                             </span>
+                        ) : !missao.ativa ? (
+                            <span className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-5 py-3 text-sm font-semibold text-gray-600">
+                                Missão indisponível no momento
+                            </span>
                         ) : (
-                            <Button onClick={handleConcluir}>
-                                <FiCheckCircle /> Marcar como concluída
+                            <Button onClick={handleConcluir} disabled={salvando}>
+                                <FiCheckCircle /> {salvando ? "Concluindo..." : usuario ? "Marcar como concluída" : "Entrar para concluir"}
                             </Button>
                         )}
                         <Button variant="secondary" onClick={() => navigate(-1)}>
