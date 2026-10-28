@@ -15,7 +15,7 @@ const destaques = [
         icone: FiTrendingUp,
         titulo: "Como funciona",
         texto:
-            "Os usuários acumulam pontos ao participar das ações e campanhas da SoulUp; a plataforma converte esses pontos em créditos seguindo regras financeiras e controles antifraude.",
+            "Os usuários acumulam pontos ao participar das ações e campanhas da SoulUp; a plataforma converte esses pontos em créditos (100 pontos = R$ 1,00) seguindo regras financeiras e controles antifraude.",
     },
     {
         icone: FaLeaf,
@@ -30,8 +30,8 @@ export default function Home() {
             <PageHero titulo="Pontos que viram transporte">
                 <p>Converta seus pontos SoulUp em créditos reais para deslocamento urbano.</p>
                 <p>
-                    Transforme recompensas em mobilidade: converta e escolha entre voucher ou crédito
-                    integrado para usar no transporte público da sua cidade.
+                    Transforme recompensas em mobilidade: converta e receba um voucher para usar no
+                    transporte público da sua cidade.
                 </p>
                 <div className="pt-4">
                     <Button to="/transporte" variant="ghost">
