@@ -1,58 +1,20 @@
-import type { BeneficioTipo, ConversaoResultado } from "../types";
+import type { OperadorTransporte } from "../types";
 
-// Mesmas regras de negócio da Sprint 1/2, agora tipadas em TypeScript.
-export const TAXA_PROCESSAMENTO = 0.02; // 2% taxa simulada
-export const CONVERSAO_MINIMA_PONTOS = 100; // regra de negócio: mínimo 100 pontos
+// Os cálculos (valor do crédito, validade, código do voucher, CO₂, árvores)
+// agora vêm da API. Aqui ficam só constantes de exibição e formatação.
+export const PONTOS_POR_REAL = 100; // texto informativo; a simulação da API é a fonte da verdade
+export const CONVERSAO_MINIMA_PONTOS = 100; // validação rápida no formulário; a API revalida
+export const CO2_KG_POR_KM = 0.17; // texto informativo
+
+// Valores aceitos pela API em "operador"
+export const OPERADORES: OperadorTransporte[] = ["SPTrans", "Metro SP", "EMTU", "CPTM", "Outro"];
 
 /** Formata um número como moeda BRL. */
 export function formatarMoeda(valor: number): string {
     return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-interface CalcularConversaoInput {
-    pontos: number;
-    tipo: BeneficioTipo;
-    valorUnitario: number;
-}
-
-/** Calcula valor bruto, taxa, valor líquido e impacto estimado de CO2. */
-export function calcularConversao({
-    pontos,
-    tipo,
-    valorUnitario,
-}: CalcularConversaoInput): ConversaoResultado {
-    const unidades = pontos / 100;
-    const valorBruto = unidades * valorUnitario;
-    const taxa = valorBruto * TAXA_PROCESSAMENTO;
-    const valorLiquido = valorBruto - taxa;
-
-    // Estimativa fictícia: cada R$1 revertido em transporte evita 0,25kg de CO2.
-    const impactoCO2kg = valorLiquido * 0.25;
-
-    return { pontos, tipo, valorBruto, taxa, valorLiquido, impactoCO2kg };
-}
-
-interface IntegracaoResultado {
-    success: boolean;
-    idPedido?: string;
-    reason?: string;
-    message?: string;
-}
-
-/** Simula a integração com o sistema de bilhetagem (substituiria um fetch real). */
-export function simularIntegracaoBilhetagem(pontos: number): IntegracaoResultado {
-    const suspeita = pontos > 100000; // regra antifraude fictícia
-    if (suspeita) {
-        return { success: false, reason: "Transação suspeita. Revisão manual necessária." };
-    }
-    return {
-        success: true,
-        idPedido: `INT-${Date.now()}`,
-        message: "Crédito solicitado com sucesso.",
-    };
-}
-
-/** Gera um código de voucher fictício. */
-export function gerarCodigoVoucher(): string {
-    return `VCH-${Math.random().toString(36).slice(2, 9).toUpperCase()}`;
+/** Formata uma data ISO (ex.: 2026-10-24T16:26:29) como dd/mm/aaaa. */
+export function formatarData(iso: string): string {
+    return new Date(iso).toLocaleDateString("pt-BR");
 }
