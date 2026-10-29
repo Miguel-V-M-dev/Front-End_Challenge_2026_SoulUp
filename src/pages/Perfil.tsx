@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
-import PageHero from "../components/ui/PageHero";
+import AvatarUsuario from "../components/ui/AvatarUsuario";
 import { useAuth } from "../context/useAuth";
 import { Carregando, ErroCarregar } from "../components/ui/Estado";
 import { useApi } from "../hooks/useApi";
@@ -76,10 +76,17 @@ export default function Perfil() {
 
     return (
         <div>
-            <PageHero titulo={`Olá, ${usuario.nome.split(" ")[0]}!`}>
-                <p>{usuario.email}</p>
-                <p className="text-sm text-brand-200">Membro desde {formatarData(usuario.dataCadastro)}</p>
-            </PageHero>
+            {/* Avatar à esquerda; nome, e-mail e data de cadastro à direita */}
+            <section className="bg-brand-900 px-4 py-12 text-white sm:px-6 sm:py-16">
+                <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 sm:flex-row sm:gap-10">
+                    <AvatarUsuario key={usuario.idUsuario} idUsuario={usuario.idUsuario} />
+                    <div className="text-center sm:text-left">
+                        <h1 className="text-3xl font-extrabold sm:text-4xl">Olá, {usuario.nome.split(" ")[0]}!</h1>
+                        <p className="mt-3 break-all text-brand-100 sm:text-lg">{usuario.email}</p>
+                        <p className="mt-1 text-sm text-brand-200">Membro desde {formatarData(usuario.dataCadastro)}</p>
+                    </div>
+                </div>
+            </section>
 
             {carregando ? (
                 <Carregando texto="Carregando seu perfil..." />
