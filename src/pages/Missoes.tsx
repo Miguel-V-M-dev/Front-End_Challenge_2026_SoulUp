@@ -23,12 +23,15 @@ export default function Missoes() {
         !carregandoSessao,
     );
 
-    const idsConcluidos = dados?.concluidas.map((um) => um.idMissao) ?? [];
+    // Só vale a conclusão do período em andamento (periodoAtual): missão diária concluída
+    // ontem volta a ficar disponível hoje.
+    const idsConcluidos = dados?.concluidas.filter((um) => um.periodoAtual).map((um) => um.idMissao) ?? [];
     const missions: MissaoComStatus[] = (dados?.missions ?? []).map((m) => ({
         ...m,
         concluida: idsConcluidos.includes(m.idMissao),
     }));
     const ativas = missions.filter((missao) => missao.ativa);
+    const ativasConcluidas = ativas.filter((missao) => missao.concluida);
     const pontosGanhos = dados?.concluidas.reduce((total, um) => total + um.pontosGanhos, 0) ?? 0;
 
     return (
@@ -37,7 +40,7 @@ export default function Missoes() {
                 <p>Complete ações do dia a dia ligadas à sustentabilidade e conquiste pontos extras.</p>
                 {usuario ? (
                     dados && <p className="text-sm text-brand-200">
-                        {idsConcluidos.length} de {ativas.length} missões ativas concluídas · +{pontosGanhos} pontos ganhos
+                        {ativasConcluidas.length} de {ativas.length} missões ativas concluídas no período · +{pontosGanhos} pontos ganhos no total
                     </p>
                 ) : (
                     <p className="text-sm text-brand-200">

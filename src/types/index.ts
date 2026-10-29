@@ -36,6 +36,9 @@ export type UsuarioSessao = Usuario;
 // CHECK categoria_missao IN (...)
 export type CategoriaMissao = "Transporte" | "Reciclagem" | "Energia" | "Alimentacao" | "Outro";
 
+/** Periodicidade da missão (coluna periodo_missao): quando ela pode ser concluída de novo. */
+export type PeriodoMissao = "UNICA" | "DIARIA" | "SEMANAL" | "MENSAL";
+
 export interface Mission {
   idMissao: number; // id_missao
   titulo: string; // titulo_missao VARCHAR2(60)
@@ -44,17 +47,20 @@ export interface Mission {
   categoria: CategoriaMissao; // categoria_missao
   ativa: boolean; // ativa CHAR(1): 'S' | 'N'
   dicas: string[]; // apenas conteúdo de interface (não existe na tabela)
+  periodo: PeriodoMissao; // periodo_missao
+  reiniciaEm: string | null; // quando o período atual termina; null para missão única
 }
 
 /** Tipo de interseção: missão da API + estado de conclusão do usuário logado. */
 export type MissaoComStatus = Mission & { concluida: boolean };
 
-// ---------- Tabela USUARIO_MISSAO (PK composta usuario + missão) ----------
+// ---------- Tabela USUARIO_MISSAO (uma conclusão por usuário, missão e período) ----------
 export interface UsuarioMissao {
   idUsuario: number;
   idMissao: number;
   dataConclusao: string; // data_conclusao
   pontosGanhos: number; // pontos creditados na conclusão
+  periodoAtual: boolean; // true se a conclusão vale para o período em andamento
 }
 
 // ---------- Tabela CONVERSAOPONTOS ----------
@@ -119,6 +125,7 @@ export interface ConclusaoResposta {
   dataConclusao: string;
   pontosGanhos: number;
   saldoPontos: number;
+  reiniciaEm: string | null; // quando a missão pode ser concluída de novo
 }
 
 export interface Simulacao {

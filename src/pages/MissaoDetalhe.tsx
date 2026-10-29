@@ -6,9 +6,10 @@ import Card from "../components/ui/Card";
 import PageHero from "../components/ui/PageHero";
 import { useAuth } from "../context/useAuth";
 import { Carregando, ErroCarregar } from "../components/ui/Estado";
-import { rotuloCategoria } from "../data/categorias";
+import { rotuloCategoria, rotuloConcluidaNoPeriodo, rotuloPeriodo } from "../data/categorias";
 import { useApi } from "../hooks/useApi";
 import { buscarMissao, concluirMissao, listarMissoesConcluidas } from "../services/ecoloopService";
+import { formatarDataHora } from "../utils/conversao";
 
 export default function MissaoDetalhe() {
     // useParams lê o parâmetro dinâmico definido na rota "/missoes/:id".
@@ -25,7 +26,8 @@ export default function MissaoDetalhe() {
                 buscarMissao(idMissao),
                 usuario ? listarMissoesConcluidas() : Promise.resolve([]),
             ]);
-            return { missao, concluida: concluidas.some((um) => um.idMissao === idMissao) };
+            // Só conta a conclusão do período atual (diária/semanal/mensal reiniciam).
+            return { missao, concluida: concluidas.some((um) => um.idMissao === idMissao && um.periodoAtual) };
         },
         `missao:${id}:${usuario?.idUsuario ?? "anon"}`,
         !carregandoSessao,
@@ -104,9 +106,14 @@ export default function MissaoDetalhe() {
             <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
                 <Card>
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                        <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-700">
-                            {rotuloCategoria[missao.categoria]}
-                        </span>
+                        <div className="flex flex-wrap gap-2">
+                            <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-700">
+                                {rotuloCategoria[missao.categoria]}
+                            </span>
+                            <span className="rounded-full bg-gold-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gold-700">
+                                {rotuloPeriodo[missao.periodo]}
+                            </span>
+                        </div>
                         <span className="text-sm font-semibold text-gold-600">+{missao.pontosRecompensa} pontos</span>
                     </div>
 
@@ -126,7 +133,8 @@ export default function MissaoDetalhe() {
                     <div className="mt-6 flex flex-wrap gap-3">
                         {concluida ? (
                             <span className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-5 py-3 text-sm font-semibold text-brand-700">
-                                <FiCheckCircle /> Missão já concluída
+                                <FiCheckCircle /> {rotuloConcluidaNoPeriodo[missao.periodo]}
+                                {missao.reiniciaEm && ` · reinicia em ${formatarDataHora(missao.reiniciaEm)}`}
                             </span>
                         ) : !missao.ativa ? (
                             <span className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-5 py-3 text-sm font-semibold text-gray-600">
