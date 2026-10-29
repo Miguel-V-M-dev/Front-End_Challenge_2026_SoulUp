@@ -11,6 +11,9 @@ const titulosPorRota: Record<string, string> = {
     "/faq": "FAQ — SoulUp",
     "/contato": "Contato — SoulUp",
     "/transporte": "Converter pontos — SoulUp",
+    "/login": "Entrar — SoulUp",
+    "/cadastro": "Criar conta — SoulUp",
+    "/perfil": "Meu perfil — SoulUp",
 };
 
 /** Layout raiz: cabeçalho + conteúdo da rota atual + rodapé. */

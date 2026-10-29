@@ -1,48 +1,73 @@
-import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import type { MissaoComStatus } from "../types";
 import MissionCard from "../components/ui/MissionCard";
 import PageHero from "../components/ui/PageHero";
-import { missions } from "../data/missions";
-import { carregarMissoesConcluidas, salvarMissoesConcluidas } from "../utils/storage";
+import { useAuth } from "../context/useAuth";
+import { useApi } from "../hooks/useApi";
+import { listarMissoes, listarMissoesConcluidas } from "../services/ecoloopService";
+import { Carregando, ErroCarregar } from "../components/ui/Estado";
 
 export default function Missoes() {
-    // useState nº5: ids das missões concluídas. Inicialização "preguiçosa"
-    // lendo direto do localStorage (só roda na 1ª renderização).
-    const [concluidas, setConcluidas] = useState<string[]>(() => carregarMissoesConcluidas());
+    const { usuario, carregando: carregandoSessao } = useAuth();
 
-    // useEffect: persiste a lista sempre que ela mudar (ex: ao voltar da
-    // página de detalhe depois de concluir uma missão, ou ao clicar
-    // diretamente no ícone de status de um card nesta página).
-    useEffect(() => {
-        salvarMissoesConcluidas(concluidas);
-    }, [concluidas]);
+    // Missões (público) + conclusões do usuário logado. Espera a sessão ser restaurada.
+    const { dados, erro, carregando, recarregar } = useApi(
+        async () => {
+            const [missions, concluidas] = await Promise.all([
+                listarMissoes(),
+                usuario ? listarMissoesConcluidas() : Promise.resolve([]),
+            ]);
+            return { missions, concluidas };
+        },
+        `missoes:${usuario?.idUsuario ?? "anon"}`,
+        !carregandoSessao,
+    );
 
-    function alternarConcluida(id: string) {
-        setConcluidas((atual) => (atual.includes(id) ? atual.filter((item) => item !== id) : [...atual, id]));
-    }
-
-    const pontosGanhos = missions
-        .filter((missao) => concluidas.includes(missao.id))
-        .reduce((total, missao) => total + missao.pontos, 0);
+    const idsConcluidos = dados?.concluidas.map((um) => um.idMissao) ?? [];
+    const missions: MissaoComStatus[] = (dados?.missions ?? []).map((m) => ({
+        ...m,
+        concluida: idsConcluidos.includes(m.idMissao),
+    }));
+    const ativas = missions.filter((missao) => missao.ativa);
+    const pontosGanhos = dados?.concluidas.reduce((total, um) => total + um.pontosGanhos, 0) ?? 0;
 
     return (
         <div>
             <PageHero titulo="Missões sustentáveis">
-                <p>Complete ações do dia a dia ligadas ao transporte público e conquiste pontos extras.</p>
-                <p className="text-sm text-brand-200">
-                    {concluidas.length} de {missions.length} missões concluídas · +{pontosGanhos} pontos ganhos
-                </p>
+                <p>Complete ações do dia a dia ligadas à sustentabilidade e conquiste pontos extras.</p>
+                {usuario ? (
+                    dados && <p className="text-sm text-brand-200">
+                        {idsConcluidos.length} de {ativas.length} missões ativas concluídas · +{pontosGanhos} pontos ganhos
+                    </p>
+                ) : (
+                    <p className="text-sm text-brand-200">
+                        <Link to="/login" state={{ from: "/missoes" }} className="underline">
+                            Entre na sua conta
+                        </Link>{" "}
+                        para concluir missões e acumular pontos.
+                    </p>
+                )}
             </PageHero>
 
-            <section className="mx-auto grid max-w-6xl gap-6 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
-                {missions.map((missao) => (
-                    <MissionCard
-                        key={missao.id}
-                        missao={missao}
-                        concluida={concluidas.includes(missao.id)}
-                        onToggle={() => alternarConcluida(missao.id)}
-                    />
-                ))}
-            </section>
+            {carregando || carregandoSessao ? (
+                <Carregando texto="Carregando missões..." />
+            ) : erro ? (
+                <section className="px-4 py-14">
+                    <ErroCarregar mensagem={erro} onTentarNovamente={recarregar} />
+                </section>
+            ) : missions.length === 0 ? (
+                <p className="px-4 py-14 text-center text-sm text-gray-600">Nenhuma missão disponível no momento.</p>
+            ) : (
+                <section className="mx-auto grid max-w-6xl gap-6 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
+                    {missions.map((missao) => (
+                        <MissionCard
+                            key={missao.idMissao}
+                            missao={missao}
+                            concluida={missao.concluida}
+                        />
+                    ))}
+                </section>
+            )}
         </div>
     );
 }

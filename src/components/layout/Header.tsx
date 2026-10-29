@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { FiMenu, FiX } from "react-icons/fi";
-import { NavLink } from "react-router-dom";
+import { FiLogOut, FiMenu, FiUser, FiX } from "react-icons/fi";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/useAuth";
 
 const links = [
     { to: "/", label: "Home", end: true },
@@ -14,6 +15,16 @@ const links = [
 export default function Header() {
     // useState nº1 do componente: controla a visibilidade do menu mobile.
     const [menuAberto, setMenuAberto] = useState(false);
+    const { usuario, sair } = useAuth();
+    const navigate = useNavigate();
+
+    const primeiroNome = usuario?.nome.split(" ")[0];
+
+    function handleSair() {
+        sair();
+        setMenuAberto(false);
+        navigate("/");
+    }
 
     const linkClasses = ({ isActive }: { isActive: boolean }) =>
         `rounded-full px-4 py-2 text-sm font-semibold transition-colors ${isActive ? "bg-brand-900 text-white" : "text-brand-900 hover:bg-brand-50"
@@ -39,6 +50,31 @@ export default function Header() {
                     >
                         Converter pontos
                     </NavLink>
+
+                    {usuario ? (
+                        <>
+                            <NavLink to="/perfil" className={linkClasses}>
+                                <span className="inline-flex items-center gap-1">
+                                    <FiUser /> {primeiroNome}
+                                </span>
+                            </NavLink>
+                            <button
+                                type="button"
+                                onClick={handleSair}
+                                aria-label="Sair da conta"
+                                className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-100 hover:text-red-600"
+                            >
+                                <FiLogOut /> Sair
+                            </button>
+                        </>
+                    ) : (
+                        <NavLink
+                            to="/login"
+                            className="rounded-full border-2 border-brand-900 px-4 py-1.5 text-sm font-semibold text-brand-900 hover:bg-brand-50"
+                        >
+                            Entrar
+                        </NavLink>
+                    )}
                 </nav>
 
                 {/* Botão hambúrguer (mobile) */}
@@ -75,6 +111,25 @@ export default function Header() {
                     >
                         Converter pontos
                     </NavLink>
+
+                    {usuario ? (
+                        <>
+                            <NavLink to="/perfil" onClick={() => setMenuAberto(false)} className={linkClasses}>
+                                Meu perfil ({primeiroNome})
+                            </NavLink>
+                            <button
+                                type="button"
+                                onClick={handleSair}
+                                className="rounded-full px-4 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50"
+                            >
+                                Sair
+                            </button>
+                        </>
+                    ) : (
+                        <NavLink to="/login" onClick={() => setMenuAberto(false)} className={linkClasses}>
+                            Entrar
+                        </NavLink>
+                    )}
                 </nav>
             )}
         </header>

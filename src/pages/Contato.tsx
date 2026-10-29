@@ -4,10 +4,12 @@ import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import Modal from "../components/ui/Modal";
 import PageHero from "../components/ui/PageHero";
+import { enviarContato } from "../services/ecoloopService";
 import type { ContatoFormValues } from "../types";
 
 export default function Contato() {
     const [modalAberto, setModalAberto] = useState(false);
+    const [erro, setErro] = useState("");
 
     const {
         register,
@@ -19,12 +21,15 @@ export default function Contato() {
         defaultValues: { nome: "", email: "", mensagem: "" },
     });
 
-    async function onSubmit() {
-        // Sem back-end nesta sprint: simulamos o envio (a integração real
-        // chega na Sprint 4, consumindo a API Java).
-        await new Promise((resolve) => setTimeout(resolve, 600));
-        setModalAberto(true);
-        reset();
+    async function onSubmit(dados: ContatoFormValues) {
+        setErro("");
+        try {
+            await enviarContato(dados); // POST /api/contatos (público)
+            setModalAberto(true);
+            reset();
+        } catch (e) {
+            setErro(e instanceof Error ? e.message : "Não foi possível enviar a mensagem.");
+        }
     }
 
     const inputClasses = (temErro: boolean) =>
@@ -90,6 +95,12 @@ export default function Contato() {
                             />
                             {errors.mensagem && <p className="mt-1 text-xs text-red-600">{errors.mensagem.message}</p>}
                         </div>
+
+                        {erro && (
+                            <p role="alert" className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-700">
+                                {erro}
+                            </p>
+                        )}
 
                         <Button type="submit" disabled={isSubmitting} className="w-full">
                             {isSubmitting ? "Enviando..." : "Enviar"}
