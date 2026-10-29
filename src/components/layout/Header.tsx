@@ -27,18 +27,18 @@ export default function Header() {
     }
 
     const linkClasses = ({ isActive }: { isActive: boolean }) =>
-        `rounded-full px-4 py-2 text-sm font-semibold transition-colors ${isActive ? "bg-brand-900 text-white" : "text-brand-900 hover:bg-brand-50"
+        `whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold transition-colors xl:px-4 ${isActive ? "bg-brand-900 text-white" : "text-brand-900 hover:bg-brand-50"
         }`;
 
     return (
         <header className="sticky top-0 z-40 border-b border-black/5 bg-white/95 backdrop-blur">
             <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-                <NavLink to="/" className="text-lg font-extrabold tracking-tight text-brand-900">
+                <NavLink to="/" className="shrink-0 whitespace-nowrap text-lg font-extrabold tracking-tight text-brand-900">
                     SoulUp <span className="text-gold-500">| Ecoloop</span>
                 </NavLink>
 
-                {/* Navegação desktop */}
-                <nav className="hidden items-center gap-1 md:flex">
+                {/* Navegação desktop (a partir de 1024px; abaixo disso vira menu hambúrguer) */}
+                <nav className="hidden items-center gap-1 lg:flex">
                     {links.map((link) => (
                         <NavLink key={link.to} to={link.to} end={link.end} className={linkClasses}>
                             {link.label}
@@ -46,7 +46,7 @@ export default function Header() {
                     ))}
                     <NavLink
                         to="/transporte"
-                        className="ml-2 rounded-full bg-gold-500 px-4 py-2 text-sm font-semibold text-brand-950 hover:bg-gold-400"
+                        className="ml-2 whitespace-nowrap rounded-full bg-gold-500 px-4 py-2 text-sm font-semibold text-brand-950 hover:bg-gold-400"
                     >
                         Converter pontos
                     </NavLink>
@@ -77,10 +77,10 @@ export default function Header() {
                     )}
                 </nav>
 
-                {/* Botão hambúrguer (mobile) */}
+                {/* Botão hambúrguer (celular e tablet, abaixo de 1024px) */}
                 <button
                     type="button"
-                    className="rounded-full p-2 text-brand-900 hover:bg-brand-50 md:hidden"
+                    className="rounded-full p-2 text-brand-900 hover:bg-brand-50 lg:hidden"
                     aria-haspopup="true"
                     aria-expanded={menuAberto}
                     aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
@@ -90,9 +90,9 @@ export default function Header() {
                 </button>
             </div>
 
-            {/* Dropdown mobile */}
+            {/* Dropdown do menu hambúrguer */}
             {menuAberto && (
-                <nav className="flex flex-col gap-1 border-t border-black/5 bg-white px-4 py-3 md:hidden">
+                <nav className="flex flex-col gap-1 border-t border-black/5 bg-white px-4 py-3 lg:hidden">
                     {links.map((link) => (
                         <NavLink
                             key={link.to}
@@ -120,7 +120,7 @@ export default function Header() {
                             <button
                                 type="button"
                                 onClick={handleSair}
-                                className="rounded-full px-4 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50"
+                                className="rounded-full px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50"
                             >
                                 Sair
                             </button>
