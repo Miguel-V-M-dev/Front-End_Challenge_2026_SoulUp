@@ -8,7 +8,7 @@ Plataforma que transforma pontos acumulados pelos usuários da SoulUp em benefí
 
 | Item | Link |
 |---|---|
-| 🌐 Projeto publicado (Vercel) | `COLE_AQUI_A_URL_DA_VERCEL` |
+| 🌐 Projeto publicado (Vercel) | https://front-end-challenge-2026-soul-up.vercel.app |
 | 🎥 Vídeo no YouTube (até 3 min) | `COLE_AQUI_O_LINK_DO_VIDEO` |
 | 💻 Repositório no GitHub | https://github.com/Miguel-V-M-dev/Front-End_Challenge_2026_SoulUp |
 | ⚙️ API publicada (Render) | https://ecoloop-api-080c.onrender.com |
@@ -258,6 +258,12 @@ npm run build     # verifica os tipos e gera a pasta dist/
 npm run lint      # roda o ESLint
 npm run preview   # serve a versão de produção localmente
 ```
+
+### Links de avaliação
+- **Repositório no GitHub:** https://github.com/Miguel-V-M-dev/Front-End_Challenge_2026_SoulUp
+- **Deploy na Vercel:** https://front-end-challenge-2026-soul-up.vercel.app
+- **API publicada:** https://ecoloop-api-080c.onrender.com
+- **Vídeo de apresentação (YouTube, até 3 min):** `COLE_AQUI_O_LINK_DO_VIDEO`
 
 ### Como testar o site
 1. Abra `/cadastro` e crie uma conta (na primeira vez a API pode demorar até 1 minuto).
