@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
+import CampoSenha from "../components/ui/CampoSenha";
 import Card from "../components/ui/Card";
 import PageHero from "../components/ui/PageHero";
 import { useAuth } from "../context/useAuth";
@@ -69,11 +70,10 @@ export default function Login() {
                             <label htmlFor="senha" className="mb-1 block text-sm font-semibold text-brand-900">
                                 Senha
                             </label>
-                            <input
+                            <CampoSenha
                                 id="senha"
-                                type="password"
                                 autoComplete="current-password"
-                                className={inputClasses(Boolean(errors.senha))}
+                                temErro={Boolean(errors.senha)}
                                 {...register("senha", { required: "Informe sua senha." })}
                             />
                             {errors.senha && <p className="mt-1 text-xs text-red-600">{errors.senha.message}</p>}

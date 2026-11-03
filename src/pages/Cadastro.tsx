@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
+import CampoSenha from "../components/ui/CampoSenha";
 import Card from "../components/ui/Card";
 import PageHero from "../components/ui/PageHero";
 import { useAuth } from "../context/useAuth";
@@ -89,11 +90,10 @@ export default function Cadastro() {
                             <label htmlFor="senha" className="mb-1 block text-sm font-semibold text-brand-900">
                                 Senha
                             </label>
-                            <input
+                            <CampoSenha
                                 id="senha"
-                                type="password"
                                 autoComplete="new-password"
-                                className={inputClasses(Boolean(errors.senha))}
+                                temErro={Boolean(errors.senha)}
                                 {...register("senha", {
                                     required: "Crie uma senha.",
                                     minLength: { value: 8, message: "Use pelo menos 8 caracteres." },
@@ -108,11 +108,10 @@ export default function Cadastro() {
                             <label htmlFor="confirmarSenha" className="mb-1 block text-sm font-semibold text-brand-900">
                                 Confirmar senha
                             </label>
-                            <input
+                            <CampoSenha
                                 id="confirmarSenha"
-                                type="password"
                                 autoComplete="new-password"
-                                className={inputClasses(Boolean(errors.confirmarSenha))}
+                                temErro={Boolean(errors.confirmarSenha)}
                                 {...register("confirmarSenha", {
                                     required: "Repita a senha.",
                                     validate: (valor) => valor === getValues("senha") || "As senhas não coincidem.",
