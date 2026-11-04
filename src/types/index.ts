@@ -1,6 +1,3 @@
-// Tipos alinhados ao modelo relacional da Sprint 4 (docs/ChallengeCreate.sql) e às
-// respostas JSON da API EcoLoop. Missao.dicas_missao vira `dicas: string[]` e
-// Usuario_missao.pontos_ganhos vira `pontosGanhos`.
 // Cada interface abaixo corresponde a uma tabela; o comentário indica a
 // coluna original. Datas são guardadas como string ISO (coluna DATE).
 
